@@ -1,0 +1,450 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+  <title>WebSocket Media Sender</title>
+</head>
+<body>
+  <h2>WebSocket Media Example</h2>
+  <button id="start">Start Recording & Send</button>
+  <script>
+    const ws = new WebSocket('ws://195.250.31.206:3030'); // Changed to localhost
+
+    ws.onopen = () => {
+      console.log('WebSocket connected');
+    };
+
+    ws.onmessage = (event) => {
+      console.log('Received from server:', event.data);
+      // Here, you can play back the audio data if needed
+    };
+
+    document.getElementById('start').onclick = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const mediaRecorder = new MediaRecorder(stream);
+
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0 && ws.readyState === WebSocket.OPEN) {
+            e.data.arrayBuffer().then(buffer => {
+              ws.send(buffer);
+            });
+          }
+        };
+
+        mediaRecorder.start(500); // send data every 500ms
+      } catch (err) {
+        console.error('Error accessing media devices.', err);
+      }
+    };
+
+
+//     document.getElementById('start').onclick = async () => {
+//   const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+//   const mediaRecorder = new MediaRecorder(stream);
+//   let chunks = [];
+
+//   mediaRecorder.ondataavailable = (e) => {
+//     if (e.data.size > 0) {
+//       chunks.push(e.data);
+//     }
+//   };
+
+//   mediaRecorder.onstop = () => {
+//     const blob = new Blob(chunks, { type: 'audio/webm' });
+//     blob.arrayBuffer().then(buffer => {
+//       if (ws.readyState === WebSocket.OPEN) {
+//         ws.send(buffer);
+//       }
+//     });
+//   };
+
+//   mediaRecorder.start();
+
+//   // Record for 5 seconds
+//   setTimeout(() => {
+//     mediaRecorder.stop();
+//   }, 10000);
+// };
+
+
+
+
+
+  </script>
+</body>
+</html> -->
+
+
+<!-- 
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Continuous WebSocket Audio Sender</title>
+</head>
+<body>
+  <h2>Conversational AI Test</h2>
+  <button id="start">Start Conversation</button>
+
+  <script>
+    const ws = new WebSocket(`ws://${location.host}`);
+
+    ws.onopen = () => console.log('WebSocket connected');
+
+    ws.onmessage = (event) => {
+      console.log('AI Response from server:', event.data);
+      // Optional: play back the response with text-to-speech
+
+
+        // Speak the AI response
+  const utterance = new SpeechSynthesisUtterance(event.data);
+  speechSynthesis.speak(utterance);
+
+
+    };
+
+
+    
+
+    document.getElementById('start').onclick = async () => {
+  const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+  const mediaRecorder = new MediaRecorder(stream);
+  const chunks = [];
+
+  mediaRecorder.ondataavailable = (e) => {
+    if (e.data.size > 0) {
+      chunks.push(e.data);
+    }
+  };
+
+  mediaRecorder.onstop = () => {
+    const blob = new Blob(chunks, { type: 'audio/webm' });
+    blob.arrayBuffer().then(buffer => {
+      ws.send(buffer);
+      console.log('Sent complete audio file to server');
+    });
+    chunks.length = 0; // clear
+  };
+
+  mediaRecorder.start();
+
+  // Record in intervals (e.g., 5 seconds), stop, send, restart
+  setInterval(() => {
+    mediaRecorder.stop();
+    mediaRecorder.start();
+  }, 5000); // every 5 seconds
+};
+
+  </script>
+</body>
+</html> -->
+
+
+
+
+<!-- 
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>WebSocket Media Sender</title>
+</head>
+<body>
+  <h2>WebSocket Media Example</h2>
+  <button id="start">Start Recording & Send</button>
+  <script>
+    const ws = new WebSocket('ws://195.250.31.206:3030');
+
+    ws.onopen = () => {
+      console.log('WebSocket connected');
+    };
+
+    ws.onmessage = (event) => {
+      console.log('Received from server:', event.data);
+      // Here, you can play back the audio data if needed
+    };
+
+    document.getElementById('start').onclick = async () => {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0 && ws.readyState === WebSocket.OPEN) {
+          e.data.arrayBuffer().then(buffer => {
+            ws.send(buffer);
+          });
+        }
+      };
+
+      mediaRecorder.start(500); // send data every 500ms
+    };
+  </script>
+</body>
+</html> -->
+
+
+
+
+
+
+<!-- 
+
+
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Multi-turn Voice Chat</title>
+</head>
+<body>
+  <h2>Multi-turn Voice Chat</h2>
+  <button id="recordBtn">Record & Send</button>
+  <div id="conversation"></div>
+
+  <script>
+    const ws = new WebSocket(`ws://${location.host}`);
+    ws.onopen = () => console.log('WebSocket connected');
+
+    ws.onmessage = (event) => {
+      // Each time the server sends an AI reply
+      const aiReply = event.data;
+      console.log('AI reply:', aiReply);
+
+      const convoDiv = document.getElementById('conversation');
+      convoDiv.innerHTML += `<p><strong>Assistant:</strong> ${aiReply}</p>`;
+    };
+
+    document.getElementById('recordBtn').onclick = async () => {
+      // 1) Start recording 
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const mediaRecorder = new MediaRecorder(stream);
+      let chunks = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) {
+          chunks.push(e.data);
+        }
+      };
+
+      mediaRecorder.onstop = async () => {
+        // 2) Combine into one Blob
+        const blob = new Blob(chunks, { type: 'audio/webm' });
+        // 3) Convert to ArrayBuffer
+        const buffer = await blob.arrayBuffer();
+        // 4) Send to server
+        ws.send(buffer);
+
+        chunks = [];
+      };
+
+      // Start recording
+      mediaRecorder.start();
+      console.log('Recording started...');
+
+      // Record for 5 seconds, then stop
+      setTimeout(() => {
+        console.log('Stopping recording...');
+        mediaRecorder.stop();
+      }, 5000);
+    };
+  </script>
+</body>
+</html> -->
+
+
+
+
+
+
+
+
+<!-- 11th april, full working  for telephony getting response in u law, 8000hz                -->
+
+<!--  
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Multi-turn Voice Chat</title>
+</head>
+<body>
+  <h2>Multi-turn Voice Chat</h2>
+  <button id="recordBtn">Record & Send</button>
+  <div id="conversation"></div>
+
+  <script>
+    // Create a WebSocket connection to your Node server
+    const ws = new WebSocket(`ws://${location.host}`);
+    
+    ws.onopen = () => {
+      console.log('WebSocket connected');
+    };
+
+    // Whenever the server sends back an AI reply
+    // ws.onmessage = (event) => {
+    //   const aiReply = event.data;
+    //   console.log('AI reply:', aiReply);
+
+    //   // Display the AI reply on the page
+    //   const convoDiv = document.getElementById('conversation');
+    //   convoDiv.innerHTML += `<p><strong>Assistant:</strong> ${aiReply}</p>`;
+    // };
+
+
+
+    ws.onmessage = async (event) => {
+  if (event.data instanceof Blob) {
+    console.log('Received audio Blob from server, size:', event.data.size);
+
+    // Convert blob to audio URL
+    const audioURL = URL.createObjectURL(event.data);
+
+    // Play the audio
+    const audio = new Audio(audioURL);
+    audio.play();
+
+    // Optional: Add player to page
+    const convoDiv = document.getElementById('conversation');
+    convoDiv.innerHTML += `<p><strong>Assistant:</strong> (Playing audio reply...)</p>`;
+    const audioElement = document.createElement('audio');
+    audioElement.src = audioURL;
+    audioElement.controls = true;
+    convoDiv.appendChild(audioElement);
+  } else {
+    console.log('Received non-blob message:', event.data);
+
+    const convoDiv = document.getElementById('conversation');
+    convoDiv.innerHTML += `<p><strong>Assistant:</strong> ${event.data}</p>`;
+  }
+};
+
+
+    // On button click, record 5 seconds of audio and send it
+  document.getElementById('recordBtn').onclick = async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const options = { mimeType: 'audio/webm;codecs=opus' };
+    const mediaRecorder = new MediaRecorder(stream, options);
+
+    mediaRecorder.ondataavailable = async (e) => {
+      if (e.data.size > 0) {
+        const buffer = await e.data.arrayBuffer();
+        ws.send(buffer); // Send audio chunk to server
+        console.log('Sent audio chunk to server');
+      }
+    };
+
+    mediaRecorder.start(1000); // Record and emit chunks every 1 second
+    console.log('🎙️ Recording started (continuous)...');
+
+    // Optional: Add stop logic (if user clicks stop button later)
+    document.getElementById('recordBtn').innerText = 'Recording... (click to stop)';
+    document.getElementById('recordBtn').onclick = () => {
+      mediaRecorder.stop();
+      console.log('🛑 Recording stopped');
+      document.getElementById('recordBtn').innerText = 'Record & Send';
+    };
+  } catch (err) {
+    console.error('Error accessing audio devices:', err);
+  }
+};
+
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+ -->
+
+
+
+
+
+
+
+ <!DOCTYPE html>
+<html>
+<head>
+  <title>Multi-turn Voice Chat</title>
+</head>
+<body>
+  <h2>Multi-turn Voice Chat</h2>
+  <p id="status">🟢 Status: Waiting for WebSocket connection...</p>
+  <button id="stopBtn">Stop Recording</button>
+  <div id="conversation"></div>
+
+  <script>
+    let mediaRecorder;
+
+    // Create a WebSocket connection to your Node server
+    const ws = new WebSocket(`ws://195.250.31.206:3030`);
+
+    ws.onopen = () => {
+      console.log('✅ WebSocket connected');
+      document.getElementById('status').innerText = '🟢 Status: WebSocket connected. Recording...';
+      startRecording(); // ✅ Start recording automatically
+    };
+
+    ws.onclose = () => {
+      console.log('❌ WebSocket disconnected');
+      document.getElementById('status').innerText = '🔴 Status: WebSocket disconnected';
+    };
+
+    ws.onmessage = async (event) => {
+      if (event.data instanceof Blob) {
+        console.log('🎵 Received audio Blob from server, size:', event.data.size);
+
+        const audioURL = URL.createObjectURL(event.data);
+        const audio = new Audio(audioURL);
+        audio.play();
+
+        const convoDiv = document.getElementById('conversation');
+        convoDiv.innerHTML += `<p><strong>Assistant:</strong> (Playing audio reply...)</p>`;
+
+        const audioElement = document.createElement('audio');
+        audioElement.src = audioURL;
+        audioElement.controls = true;
+        convoDiv.appendChild(audioElement);
+      } else {
+        console.log('Received non-blob message:', event.data);
+        const convoDiv = document.getElementById('conversation');
+        convoDiv.innerHTML += `<p><strong>Assistant:</strong> ${event.data}</p>`;
+      }
+    };
+
+    async function startRecording() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const options = { mimeType: 'audio/webm;codecs=opus' };
+        mediaRecorder = new MediaRecorder(stream, options);
+
+        mediaRecorder.ondataavailable = async (e) => {
+          if (e.data.size > 0 && ws.readyState === WebSocket.OPEN) {
+            const buffer = await e.data.arrayBuffer();
+            ws.send(buffer);
+            console.log('🎙️ Sent audio chunk to server');
+          }
+        };
+
+        mediaRecorder.start(1000); // ✅ Continuous chunks every 1 second
+        console.log('🎙️ Recording started (continuous)...');
+      } catch (err) {
+        console.error('🚨 Error accessing audio devices:', err);
+      }
+    }
+
+    // Stop recording manually
+    document.getElementById('stopBtn').onclick = () => {
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+        console.log('🛑 Recording stopped manually');
+        document.getElementById('status').innerText = '🟡 Status: Recording stopped';
+      }
+    };
+  </script>
+</body>
+</html>
