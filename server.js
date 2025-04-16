@@ -13,6 +13,7 @@ import fetch from 'node-fetch'; // For OpenAI
 import { synthesizeSpeech } from './textToSpeech.js'; // ✅ New import
 import { sendToVoiceBot } from './voiceBot.js'; // 🎯 Uses new full pipeline
 import dotenv from 'dotenv';
+import { encodeWAV } from './wavEncoder.js';
 dotenv.config();
 
 
@@ -30,6 +31,8 @@ app.get('/', (req, res) => {
 });
 
 // Each WS connection gets a conversation array AND an audio buffer
+console.log(wss);
+
 wss.on('connection', (ws) => {
   console.log('✅ Client connected');
 
@@ -57,49 +60,55 @@ wss.on('connection', (ws) => {
     }
     
     
-    if (message instanceof Buffer) {
-      console.log('🔊 Received audio chunk, size=', message.length);
-      audioChunks.push(message);
+    // if (message instanceof Buffer) {
+    //   console.log('🔊 Received audio chunk, size=', message.length);
+    //   audioChunks.push(message);
 
-      // Clear the old timer
-      if (silenceTimer) {
-        clearTimeout(silenceTimer);
-      }
+    //   // Clear the old timer
+    //   if (silenceTimer) {
+    //     clearTimeout(silenceTimer);
+    //   }
 
-      // Set a new timer for 2s. If no audio arrives in that time,
-      // we'll assume the user finished speaking
-      silenceTimer = setTimeout(async () => {
-        // Combine all chunks
-        const fullAudio = Buffer.concat(audioChunks);
-        audioChunks = []; // reset
+    //   // Set a new timer for 500ms. If no audio arrives in that time,
+    //   // we'll assume the user finished speaking
+    //   silenceTimer = setTimeout(async () => {
+    //     // Combine all chunks
+    //     const fullAudio = Buffer.concat(audioChunks);
+    //     audioChunks = []; // reset
 
-        console.log('🛑 No audio in 2s, transcribing...');
-        let userText = '';
-        try {
-          userText = await transcribeAudio(fullAudio);
-        } catch (e) {
-          console.error('Transcription error:', e);
-          ws.send('Error transcribing audio.');
-          return;
-        }
+    //     console.log('🛑 No audio in 500ms, transcribing...');
+    //     let userText = '';
+    //     try {
+    //       userText = await transcribeAudio(fullAudio);
+    //     } catch (e) {
+    //       console.error('Transcription error:', e);
+    //       ws.send('Error transcribing audio.');
+    //       return;
+    //     }
 
-        console.log('User said:', userText);
-        conversation.push({ role: 'user', content: userText });
+    //     console.log('User said:', userText);
+    //     conversation.push({ role: 'user', content: userText });
 
-        // Get AI reply
-        const reply = await callOpenAI(conversation);
-        conversation.push({ role: 'assistant', content: reply });
+    //     // Get AI reply
+    //     const reply = await callOpenAI(conversation);
+    //     conversation.push({ role: 'assistant', content: reply });
 
-           // ✅ Convert reply text to audio buffer
-         const audioBuffer = await synthesizeSpeech(reply);
+    //        // ✅ Convert reply text to audio buffer
+    //     const audioBuffer = await synthesizeSpeech(reply);
 
-          // ✅ Send audio buffer to telephony over WebSocket
-          ws.send(audioBuffer);
+    //     const wavBuffer = encodeWAV(audioBuffer, {
+    //           sampleRate: 16000,
+    //           channels: 1,
+    //           bitDepth: 16,
+    //         });
+
+    //       // ✅ Send audio buffer to telephony over WebSocket
+    //     ws.send(audioBuffer);
 
 
-      }, 2000);
+    //   }, 1000);
 
-    } 
+    // } 
     
     
     else {

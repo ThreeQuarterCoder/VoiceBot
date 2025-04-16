@@ -1,5 +1,4 @@
 
-import { Resampler } from '@audiojs/resampler';
 
 export function encodeWAV(buffer, options) {
     const { sampleRate = 24000, channels = 1, bitDepth = 16 } = options;
@@ -25,31 +24,3 @@ export function encodeWAV(buffer, options) {
     return Buffer.concat([header, buffer]);
   }
 
-export function resamplePCMBuffer(pcmBuffer) {
-  const int16 = new Int16Array(pcmBuffer.buffer, pcmBuffer.byteOffset, pcmBuffer.byteLength / 2);
-  const float32 = new Float32Array(int16.length);
-  for (let i = 0; i < int16.length; i++) {
-    float32[i] = int16[i] / 32768;
-  }
-
-  const inputSampleRate = 24000;
-  const outputSampleRate = 16000;
-
-  const resampler = new Resampler({
-    inputSampleRate,
-    outputSampleRate,
-    channels: 1,
-  });
-
-  const resampled = resampler.resample(float32);
-
-  // Convert Float32Array -> Int16Array -> Buffer
-  const outInt16 = new Int16Array(resampled.length);
-  for (let i = 0; i < resampled.length; i++) {
-    let s = Math.max(-1, Math.min(1, resampled[i])); // clamp
-    outInt16[i] = s < 0 ? s * 32768 : s * 32767;
-  }
-
-  return Buffer.from(outInt16.buffer);
-}
-  
