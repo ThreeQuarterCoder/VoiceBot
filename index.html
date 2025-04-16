@@ -14,8 +14,8 @@
     let mediaRecorder;
 
     // Create a WebSocket connection to your Node server
-    //const ws = new WebSocket(`ws://195.250.31.206:3030`);
-    const ws = new WebSocket(`ws://localhost:3030`);
+    const ws = new WebSocket(`ws://195.250.31.206:3030`);
+    //const ws = new WebSocket(`ws://localhost:3030`);
 
     ws.onopen = () => {
       console.log('✅ WebSocket connected');
