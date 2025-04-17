@@ -6,6 +6,11 @@ from webrtcvad import Vad
 from pydub import AudioSegment
 import numpy as np
 
+from dotenv import load_dotenv
+
+# Load .env file
+load_dotenv()
+
 # Configuration (hardcoded for POC)
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 if not OPENAI_API_KEY:
