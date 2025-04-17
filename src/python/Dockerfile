@@ -16,7 +16,7 @@ RUN apt-get update && apt-get install -y \
 COPY mod_server.py .
 
 # Install Python dependencies
-RUN pip install --no-cache-dir websockets requests pydub webrtcvad
+RUN pip install --no-cache-dir websockets requests pydub webrtcvad numpy
 
 # Verify dependencies
 RUN python -c "import websockets, requests, pydub, webrtcvad" \
