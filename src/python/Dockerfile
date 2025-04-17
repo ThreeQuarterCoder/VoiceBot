@@ -12,7 +12,8 @@ RUN apt-get update && apt-get install -y \
     libsndfile1 \
     && rm -rf /var/lib/apt/lists/*
 
-
+COPY . .
+COPY .env .
 COPY mod_server.py .
 
 # Install Python dependencies
