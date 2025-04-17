@@ -1,0 +1,8 @@
+import websockets
+import asyncio
+async def test_client():
+    async with websockets.connect("ws://195.250.31.206:3030") as ws:
+        with open("sample.wav", "rb") as f:
+            await ws.send(f.read())
+        print(await ws.recv())
+asyncio.run(test_client())
