@@ -1,7 +1,7 @@
 import asyncio
 import websockets
 import requests
-import io
+import io, os, sys
 from webrtcvad import Vad
 from pydub import AudioSegment
 import numpy as np
